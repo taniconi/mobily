@@ -140,6 +140,9 @@ const importUsersCsvButton = document.getElementById("import-users-csv-button");
 const importCarriersCsvInput = document.getElementById("import-carriers-csv-input");
 const importDevicesCsvInput = document.getElementById("import-devices-csv-input");
 const importUsersCsvInput = document.getElementById("import-users-csv-input");
+const themeSystemButton = document.getElementById("theme-system-button");
+const themeLightButton = document.getElementById("theme-light-button");
+const themeDarkButton = document.getElementById("theme-dark-button");
 
 // 今ログイン中のユーザーを保持します。
 let currentUser = null;
@@ -151,6 +154,8 @@ let showCancelledCarriers = false;
 let isResettingAccount = false;
 let pendingMnpPreset = null;
 let pendingMnpSourceStatusUpdate = null;
+let themePreference = "system";
+const systemThemeMedia = window.matchMedia("(prefers-color-scheme: dark)");
 
 // 成功メッセージとエラーメッセージの表示を切り替えやすくします。
 function showError(message) {
@@ -213,6 +218,50 @@ function escapeCsvValue(value) {
     return `"${escapedValue}"`;
   }
   return escapedValue;
+}
+
+function getStoredThemePreference() {
+  const stored = localStorage.getItem("themePreference");
+  if (!stored) {
+    return "system";
+  }
+  if (!["system", "light", "dark"].includes(stored)) {
+    return "system";
+  }
+  return stored;
+}
+
+function setThemePreference(nextPreference) {
+  themePreference = nextPreference;
+  localStorage.setItem("themePreference", themePreference);
+  applyThemeToDocument();
+  syncThemeButtons();
+}
+
+function getResolvedTheme() {
+  if (themePreference === "light") {
+    return "light";
+  }
+  if (themePreference === "dark") {
+    return "dark";
+  }
+  return systemThemeMedia.matches ? "dark" : "light";
+}
+
+function applyThemeToDocument() {
+  const resolved = getResolvedTheme();
+  document.documentElement.setAttribute("data-theme", resolved);
+  document.documentElement.setAttribute("data-theme-source", themePreference);
+  document.documentElement.setAttribute("data-resolved-theme", resolved);
+}
+
+function syncThemeButtons() {
+  if (!themeSystemButton || !themeLightButton || !themeDarkButton) {
+    return;
+  }
+  themeSystemButton.setAttribute("aria-pressed", String(themePreference === "system"));
+  themeLightButton.setAttribute("aria-pressed", String(themePreference === "light"));
+  themeDarkButton.setAttribute("aria-pressed", String(themePreference === "dark"));
 }
 
 function createCsv(headers, rows) {
@@ -398,7 +447,6 @@ function setEditMode(carrier = null) {
 
   editingBanner.classList.toggle("hidden", !isEditing);
   cancelEditButton.classList.toggle("hidden", !isEditing);
-  editOptionsButton.classList.toggle("hidden", !isEditing);
   editOptionsButton.disabled = !currentUser || !isEditing;
   saveButton.textContent = isEditing ? "更新" : "保存";
   registerModeText.textContent = "";
@@ -841,29 +889,29 @@ function getBenefitSummary(item) {
 function getCarrierTheme(carrierName = "") {
   const normalizedName = carrierName.trim().toLowerCase();
   const carrierThemes = {
-    docomo: { color: "#cc0033", textColor: "#ffffff" },
+    docomo: { color: "#cc3341", textColor: "#ffffff" },
     au: { color: "#eb5505", textColor: "#ffffff" },
     softbank: { color: "#111827", textColor: "#ffffff" },
-    rakuten: { color: "#bf0000", textColor: "#ffffff" },
-    "rakuten mobile": { color: "#bf0000", textColor: "#ffffff" },
-    "y!mobile": { color: "#e60012", textColor: "#ffffff" },
-    "uq mobile": { color: "#00a0e9", textColor: "#ffffff" },
-    linemo: { color: "#00c300", textColor: "#ffffff" },
+    rakuten: { color: "#ff008c", textColor: "#ffffff" },
+    "rakuten mobile": { color: "#ff008c", textColor: "#ffffff" },
+    "y!mobile": { color: "#ff0033", textColor: "#ffffff" },
+    "uq mobile": { color: "#0091d7", textColor: "#ffffff" },
+    linemo: { color: "#14eb0a", textColor: "#1f2937" },
     povo: { color: "#ffd900", textColor: "#1f2937" },
     ahamo: { color: "#d6003b", textColor: "#ffffff" },
-    irumo: { color: "#cc0033", textColor: "#ffffff" },
-    iijmio: { color: "#005bac", textColor: "#ffffff" },
-    mineo: { color: "#00a85a", textColor: "#ffffff" },
-    "ocn モバイル one": { color: "#f08300", textColor: "#ffffff" },
-    "nuro mobile": { color: "#e4007f", textColor: "#ffffff" },
-    "biglobeモバイル": { color: "#005bac", textColor: "#ffffff" },
+    irumo: { color: "#00bfa5", textColor: "#1f2937" },
+    iijmio: { color: "#e4007f", textColor: "#ffffff" },
+    mineo: { color: "#00a23f", textColor: "#ffffff" },
+    "ocn モバイル one": { color: "#13327c", textColor: "#ffffff" },
+    "nuro mobile": { color: "#000000", textColor: "#ffffff" },
+    "biglobeモバイル": { color: "#008cd7", textColor: "#ffffff" },
     "j:com mobile": { color: "#e60012", textColor: "#ffffff" },
     "イオンモバイル": { color: "#b60081", textColor: "#ffffff" },
     "日本通信sim": { color: "#d71920", textColor: "#ffffff" },
     "b-mobile": { color: "#111827", textColor: "#ffffff" },
-    "hisモバイル": { color: "#005bac", textColor: "#ffffff" },
+    "hisモバイル": { color: "#0071ce", textColor: "#ffffff" },
     linksmate: { color: "#00a1e9", textColor: "#ffffff" },
-    libmo: { color: "#1f4da0", textColor: "#ffffff" },
+    libmo: { color: "#e2261a", textColor: "#ffffff" },
     "y.u mobile": { color: "#f97316", textColor: "#ffffff" },
     qtmobile: { color: "#0f766e", textColor: "#ffffff" },
     エキサイトモバイル: { color: "#ef4444", textColor: "#ffffff" },
@@ -874,6 +922,18 @@ function getCarrierTheme(carrierName = "") {
     color: "var(--primary)",
     textColor: "#ffffff",
   };
+}
+
+function applyCarrierChoiceButtonThemes() {
+  carrierChoiceButtons.forEach((button) => {
+    const carrierValue = button.dataset.carrierValue;
+    if (!carrierValue) {
+      return;
+    }
+    const theme = getCarrierTheme(carrierValue);
+    button.style.setProperty("--carrier-choice-color", theme.color);
+    button.style.setProperty("--carrier-choice-text-color", theme.textColor);
+  });
 }
 
 function getDevicePlatform(device) {
@@ -897,6 +957,7 @@ function createDeviceIcon(platform = "") {
     Apple: {
       src: "https://cdn.simpleicons.org/apple/000000",
       label: "Apple",
+      monochrome: true,
     },
     Android: {
       src: "https://api.iconify.design/logos/android-icon.svg",
@@ -905,14 +966,16 @@ function createDeviceIcon(platform = "") {
     その他: {
       src: "https://api.iconify.design/material-symbols/memory.svg?color=%235f6b7a",
       label: "その他",
+      monochrome: true,
     },
   };
   const icon = iconMap[platform] || {
     src: "https://api.iconify.design/material-symbols/memory.svg?color=%235f6b7a",
     label: "端末",
+    monochrome: true,
   };
   const image = document.createElement("img");
-  image.className = "device-icon";
+  image.className = icon.monochrome ? "device-icon theme-icon" : "device-icon";
   image.src = icon.src;
   image.alt = `${icon.label} アイコン`;
   image.loading = "lazy";
@@ -1187,9 +1250,11 @@ function renderCarrierList(items) {
     cancelledToggleButton.className = "cancelled-toggle-button";
     cancelledToggleButton.dataset.action = "toggle-cancelled";
     cancelledToggleButton.setAttribute("aria-expanded", String(showCancelledCarriers));
-    cancelledToggleButton.textContent = showCancelledCarriers
-      ? "解約済みを閉じる"
-      : "解約済みを確認";
+    cancelledToggleButton.setAttribute(
+      "aria-label",
+      showCancelledCarriers ? "解約済みを閉じる" : "解約済みを開く"
+    );
+    cancelledToggleButton.title = showCancelledCarriers ? "解約済みを閉じる" : "解約済みを開く";
     cancelledHeader.appendChild(cancelledToggleButton);
     carrierList.appendChild(cancelledHeader);
   }
@@ -2407,3 +2472,19 @@ importUsersCsvInput.addEventListener("change", async () => {
 setAuthPanelMode("login");
 setDeviceFormVisible(false);
 setUserRegistrationFormVisible(false);
+applyCarrierChoiceButtonThemes();
+
+themePreference = getStoredThemePreference();
+applyThemeToDocument();
+syncThemeButtons();
+
+systemThemeMedia.addEventListener("change", () => {
+  if (themePreference !== "system") {
+    return;
+  }
+  applyThemeToDocument();
+});
+
+themeSystemButton?.addEventListener("click", () => setThemePreference("system"));
+themeLightButton?.addEventListener("click", () => setThemePreference("light"));
+themeDarkButton?.addEventListener("click", () => setThemePreference("dark"));

@@ -92,6 +92,7 @@
             aria-current="page"
           >
             <img
+              class="theme-icon"
               src="https://api.iconify.design/material-symbols/home-rounded.svg?color=%231f2937"
               alt=""
               aria-hidden="true"
@@ -110,6 +111,7 @@
             aria-label="マイページ"
           >
             <img
+              class="theme-icon"
               src="https://api.iconify.design/material-symbols/person-rounded.svg?color=%231f2937"
               alt=""
               aria-hidden="true"
@@ -320,7 +322,7 @@
                 <button id="cancel-edit-button" type="button" class="ghost hidden">
                   キャンセル
                 </button>
-                <button id="edit-options-button" type="button" class="secondary hidden" disabled>
+                <button id="edit-options-button" type="button" class="secondary" disabled>
                   オプション
                 </button>
               </div>
@@ -341,6 +343,26 @@
 
             <div class="form-grid">
               <p id="mypage-email" class="status-text">現在のログインアカウント情報を確認できます。</p>
+            </div>
+          </section>
+
+          <section class="panel" aria-labelledby="theme-title">
+            <div class="panel-header">
+              <h2 id="theme-title">表示モード</h2>
+            </div>
+            <div class="form-grid">
+              <div class="segmented" role="group" aria-label="表示モードの選択">
+                <button id="theme-system-button" type="button" class="segmented-button" aria-pressed="true">
+                  システム
+                </button>
+                <button id="theme-light-button" type="button" class="segmented-button" aria-pressed="false">
+                  ライト
+                </button>
+                <button id="theme-dark-button" type="button" class="segmented-button" aria-pressed="false">
+                  ダーク
+                </button>
+              </div>
+              <p class="status-text">「システム」は端末の設定に合わせます。</p>
             </div>
           </section>
 
