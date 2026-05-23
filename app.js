@@ -1118,6 +1118,9 @@ function createCarrierListItem(item) {
   const contractStatus = item.isCancelled && item.cancelDate
     ? formatDate(item.cancelDate)
     : "契約継続中";
+  const benefitItems = normalizeCarrierBenefits(item).filter((benefit) => benefit.type);
+  const hasOnlyOneBenefit = benefitItems.length === 1;
+  const primaryBenefit = hasOnlyOneBenefit ? benefitItems[0] : null;
   const benefitSummary = getBenefitSummary(item);
   const userSummary = item.userName || "";
   const optionsSummary = getOptionsSummary(item);
@@ -1207,7 +1210,25 @@ function createCarrierListItem(item) {
 
   [
     { key: "contract", text: `${formatDate(item.contractDate)} - ${contractStatus}` },
-    { key: "benefit", text: benefitSummary },
+    primaryBenefit
+      ? primaryBenefit.type === "特典端末"
+        ? {
+            key: "benefit",
+            text: primaryBenefit.deviceName ? `特典端末 ${primaryBenefit.deviceName}` : "特典端末",
+            statusLabel: "受取済",
+            statusTone: "success",
+          }
+        : {
+            key: "benefit",
+            text:
+              `${primaryBenefit.type} ` +
+              (primaryBenefit.amount > 0
+                ? `${Number(primaryBenefit.amount).toLocaleString("ja-JP")}円`
+                : "額面未入力"),
+            statusLabel: primaryBenefit.received ? "受取済" : "未受取",
+            statusTone: primaryBenefit.received ? "success" : "pending",
+          }
+      : { key: "benefit", text: benefitSummary },
     { key: "user", text: userSummary },
     { key: "option", text: optionsSummary },
     { key: "shop", text: item.shopName || "" },
@@ -1218,6 +1239,8 @@ function createCarrierListItem(item) {
       listItem.appendChild(
         createCarrierDetailLine(line.text, carrierLineIcons[line.key], {
           primary: Boolean(line.primary),
+          statusLabel: line.statusLabel || "",
+          statusTone: line.statusTone || "neutral",
         })
       );
     });

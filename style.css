@@ -804,6 +804,7 @@ button.danger:hover:enabled {
 .carrier-line-status.success {
   background: color-mix(in srgb, var(--success) 18%, var(--panel));
   color: var(--success);
+  border: 1px solid color-mix(in srgb, var(--success) 55%, var(--line));
 }
 
 .carrier-line-status.pending {
