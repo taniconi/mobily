@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>mobily | 携帯回線管理</title>
+    <meta
+      name="description"
+      content="個人用の携帯回線情報を管理するシンプルなPWAアプリ"
+    />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <main class="container">
+      <section id="auth-screen" class="screen">
+        <header class="app-header auth-header">
+          <div class="app-title auth-title">
+            <h1>Mobily</h1>
+          </div>
+        </header>
+
+        <section id="login-auth-panel" class="panel auth-panel" aria-labelledby="login-auth-title">
+          <div class="panel-header">
+            <h2 id="login-auth-title">ログイン</h2>
+          </div>
+
+          <form id="login-form" class="form-grid">
+            <label class="field">
+              <span>メールアドレス</span>
+              <input id="login-email" type="email" autocomplete="email" required />
+            </label>
+
+            <label class="field">
+              <span>パスワード</span>
+              <input id="login-password" type="password" autocomplete="current-password" required />
+            </label>
+
+            <button id="login-button" type="submit">ログイン</button>
+          </form>
+
+          <div class="auth-footer">
+            <button id="go-signup-button" type="button" class="text-link-button">
+              新規登録ページへ
+            </button>
+          </div>
+        </section>
+
+        <section
+          id="signup-auth-panel"
+          class="panel auth-panel hidden"
+          aria-labelledby="signup-auth-title"
+        >
+          <div class="panel-header">
+            <h2 id="signup-auth-title">新規登録</h2>
+          </div>
+
+          <form id="signup-form" class="form-grid">
+            <label class="field">
+              <span>メールアドレス</span>
+              <input id="signup-email" type="email" autocomplete="email" required />
+            </label>
+
+            <label class="field">
+              <span>パスワード</span>
+              <input id="signup-password" type="password" autocomplete="new-password" required />
+            </label>
+
+            <button id="signup-button" type="submit">新規登録</button>
+          </form>
+
+          <div class="auth-footer">
+            <button id="go-login-button" type="button" class="text-link-button">
+              ログインページへ
+            </button>
+          </div>
+        </section>
+
+        <div class="status-area">
+          <p id="auth-status" class="status-text">未ログインです。</p>
+          <p id="error-message" class="message error" role="alert"></p>
+          <p id="success-message" class="message success" role="status"></p>
+        </div>
+      </section>
+
+      <section id="app-screen" class="screen hidden">
+        <header class="app-header">
+          <button
+            id="home-button"
+            type="button"
+            class="icon-nav-button active"
+            aria-label="ホーム"
+            aria-current="page"
+          >
+            <img
+              src="https://api.iconify.design/material-symbols/home-rounded.svg?color=%231f2937"
+              alt=""
+              aria-hidden="true"
+            />
+          </button>
+
+          <div class="app-title">
+            <h1>Mobily</h1>
+            <p id="app-status" class="status-text hidden">ログイン中</p>
+          </div>
+
+          <button
+            id="mypage-button"
+            type="button"
+            class="icon-nav-button"
+            aria-label="マイページ"
+          >
+            <img
+              src="https://api.iconify.design/material-symbols/person-rounded.svg?color=%231f2937"
+              alt=""
+              aria-hidden="true"
+            />
+          </button>
+        </header>
+
+        <section id="list-tab" class="tab-panel active" aria-labelledby="list-title">
+          <section class="panel">
+            <div class="panel-header">
+              <h2 id="list-title">保存済み回線一覧</h2>
+            </div>
+
+            <ul id="carrier-list" class="carrier-list">
+              <li class="empty-item">データなし</li>
+            </ul>
+          </section>
+        </section>
+
+        <button
+          id="add-carrier-button"
+          type="button"
+          class="fab-button"
+          aria-label="回線を登録"
+        >
+          <img
+            src="https://api.iconify.design/material-symbols/add-rounded.svg?color=%23ffffff"
+            alt=""
+            aria-hidden="true"
+          />
+        </button>
+
+        <section id="register-tab" class="tab-panel hidden" aria-labelledby="carrier-title">
+          <section class="panel">
+            <div class="panel-header">
+              <h2 id="carrier-title">回線登録 / 編集</h2>
+              <p id="register-mode-text" class="panel-text"></p>
+            </div>
+
+            <form id="carrier-form" class="form-grid">
+              <div id="editing-banner" class="editing-banner hidden" role="status">
+                編集モードです。内容を変更して更新、または削除できます。
+              </div>
+
+              <section class="carrier-picker" aria-labelledby="carrier-picker-title">
+                <input id="carrier-name" type="hidden" />
+                <h3 id="carrier-picker-title">キャリア</h3>
+                <div class="carrier-picker-group">
+                  <p>4大キャリア</p>
+                  <div class="carrier-button-grid">
+                    <button type="button" class="carrier-choice-button" data-carrier-value="docomo">docomo</button>
+                    <button type="button" class="carrier-choice-button" data-carrier-value="au">au</button>
+                    <button type="button" class="carrier-choice-button" data-carrier-value="SoftBank">SoftBank</button>
+                    <button type="button" class="carrier-choice-button" data-carrier-value="Rakuten">Rakuten</button>
+                  </div>
+                </div>
+                <div class="carrier-picker-group">
+                  <p>サブブランド</p>
+                  <div class="carrier-button-grid">
+                    <button type="button" class="carrier-choice-button" data-carrier-value="Y!mobile">Y!mobile</button>
+                    <button type="button" class="carrier-choice-button" data-carrier-value="UQ mobile">UQ mobile</button>
+                    <button type="button" class="carrier-choice-button" data-carrier-value="LINEMO">LINEMO</button>
+                    <button type="button" class="carrier-choice-button" data-carrier-value="povo">povo</button>
+                    <button type="button" class="carrier-choice-button" data-carrier-value="ahamo">ahamo</button>
+                    <button
+                      id="show-other-carriers-button"
+                      type="button"
+                      class="carrier-choice-button carrier-more-button"
+                      disabled
+                      aria-expanded="false"
+                    >
+                      MVNO・その他
+                    </button>
+                  </div>
+                </div>
+                <div id="other-carrier-panel" class="other-carrier-panel hidden">
+                  <div class="carrier-picker-group">
+                    <p>MVNO・その他</p>
+                    <div class="carrier-button-grid">
+                      <button type="button" class="carrier-choice-button" data-carrier-value="irumo">irumo</button>
+                      <button type="button" class="carrier-choice-button" data-carrier-value="IIJmio">IIJmio</button>
+                      <button type="button" class="carrier-choice-button" data-carrier-value="mineo">mineo</button>
+                      <button type="button" class="carrier-choice-button" data-carrier-value="OCN モバイル ONE">OCN モバイル ONE</button>
+                      <button type="button" class="carrier-choice-button" data-carrier-value="NURO Mobile">NURO Mobile</button>
+                      <button type="button" class="carrier-choice-button" data-carrier-value="BIGLOBEモバイル">BIGLOBEモバイル</button>
+                      <button type="button" class="carrier-choice-button" data-carrier-value="J:COM MOBILE">J:COM MOBILE</button>
+                      <button type="button" class="carrier-choice-button" data-carrier-value="イオンモバイル">イオンモバイル</button>
+                      <button type="button" class="carrier-choice-button" data-carrier-value="日本通信SIM">日本通信SIM</button>
+                      <button type="button" class="carrier-choice-button" data-carrier-value="b-mobile">b-mobile</button>
+                      <button type="button" class="carrier-choice-button" data-carrier-value="HISモバイル">HISモバイル</button>
+                      <button type="button" class="carrier-choice-button" data-carrier-value="LinksMate">LinksMate</button>
+                      <button type="button" class="carrier-choice-button" data-carrier-value="LIBMO">LIBMO</button>
+                      <button type="button" class="carrier-choice-button" data-carrier-value="y.u mobile">y.u mobile</button>
+                      <button type="button" class="carrier-choice-button" data-carrier-value="QTmobile">QTmobile</button>
+                      <button type="button" class="carrier-choice-button" data-carrier-value="エキサイトモバイル">エキサイトモバイル</button>
+                      <button type="button" class="carrier-choice-button" data-carrier-value="TONEモバイル">TONEモバイル</button>
+                    </div>
+                  </div>
+                  <label id="custom-carrier-field" class="field">
+                    <span>その他のキャリア名</span>
+                    <input
+                      id="custom-carrier-name"
+                      type="text"
+                      disabled
+                    />
+                  </label>
+                </div>
+              </section>
+
+              <label class="field">
+                <span>プラン名</span>
+                <input
+                  id="plan-name"
+                  type="text"
+                  disabled
+                  required
+                />
+              </label>
+
+              <label class="field">
+                <span>電話番号</span>
+                <input
+                  id="phone-number"
+                  type="tel"
+                  autocomplete="tel"
+                  disabled
+                  required
+                />
+              </label>
+
+              <label class="field">
+                <span>契約日</span>
+                <input id="contract-date" type="date" disabled required />
+              </label>
+
+              <label class="field">
+                <span>ID</span>
+                <input
+                  id="account-id"
+                  type="text"
+                  disabled
+                />
+              </label>
+
+              <label class="field">
+                <span>ショップ名</span>
+                <input
+                  id="shop-name"
+                  type="text"
+                  disabled
+                />
+              </label>
+
+              <section class="option-manager" aria-labelledby="benefits-title">
+                <div class="option-manager-header">
+                  <h3 id="benefits-title">契約時特典</h3>
+                  <button id="add-benefit-button" type="button" class="ghost" disabled>
+                    特典を追加
+                  </button>
+                </div>
+                <div id="benefit-list" class="option-list"></div>
+              </section>
+
+              <section class="option-manager" aria-labelledby="options-title">
+                <div class="option-manager-header">
+                  <h3 id="options-title">オプション</h3>
+                  <button id="add-option-button" type="button" class="ghost" disabled>
+                    オプションを追加
+                  </button>
+                </div>
+                <div id="option-list" class="option-list"></div>
+              </section>
+
+              <label id="user-name-field" class="field">
+                <span>利用者名</span>
+                <select id="user-name" disabled>
+                  <option value="">選択してください</option>
+                </select>
+              </label>
+
+              <label class="field">
+                <span>所持端末</span>
+                <select id="device-name" disabled>
+                  <option value="">選択してください</option>
+                </select>
+              </label>
+
+              <label class="field">
+                <span>eSIM</span>
+                <input id="is-esim" type="checkbox" disabled />
+              </label>
+
+              <label class="field hidden">
+                <span>解約済み</span>
+                <select id="is-cancelled" disabled>
+                  <option value="no">いいえ</option>
+                  <option value="yes">はい</option>
+                </select>
+              </label>
+
+              <label id="cancel-date-field" class="field conditional-field">
+                <span>解約日</span>
+                <input id="cancel-date" type="date" disabled />
+              </label>
+
+              <div class="button-row">
+                <button id="save-button" type="submit" disabled>保存</button>
+                <button id="cancel-edit-button" type="button" class="ghost hidden">
+                  キャンセル
+                </button>
+                <button id="edit-options-button" type="button" class="secondary hidden" disabled>
+                  オプション
+                </button>
+              </div>
+            </form>
+
+            <div class="status-area">
+              <p id="app-error-message" class="message error" role="alert"></p>
+              <p id="app-success-message" class="message success" role="status"></p>
+            </div>
+          </section>
+        </section>
+
+        <section id="mypage-tab" class="tab-panel hidden" aria-labelledby="mypage-title">
+          <section class="panel">
+            <div class="panel-header">
+              <h2 id="mypage-title">マイページ</h2>
+            </div>
+
+            <div class="form-grid">
+              <p id="mypage-email" class="status-text">現在のログインアカウント情報を確認できます。</p>
+            </div>
+          </section>
+
+			          <section class="panel" aria-labelledby="device-manager-title">
+            <div class="panel-header manager-header">
+              <h2 id="device-manager-title">所持端末管理</h2>
+              <button
+                id="open-device-form-button"
+                type="button"
+                class="ghost manager-add-button"
+                disabled
+                aria-expanded="false"
+                aria-controls="device-form"
+              >
+                ＋追加
+              </button>
+            </div>
+
+            <form id="device-form" class="form-grid hidden">
+              <label class="field">
+                <span>所持端末タイプ</span>
+                <select id="device-manager-platform" disabled required>
+                  <option value="">選択してください</option>
+                  <option value="Apple">Apple</option>
+                  <option value="Android">Android</option>
+                  <option value="その他">その他</option>
+                </select>
+              </label>
+
+              <label class="field">
+                <span>所持端末名</span>
+                <input
+                  id="device-manager-name"
+                  type="text"
+                  disabled
+                />
+              </label>
+
+              <div class="button-row">
+                <button id="add-device-button" type="submit" disabled>所持端末を追加</button>
+              </div>
+            </form>
+
+            <div class="status-area">
+              <p id="device-error-message" class="message error" role="alert"></p>
+              <p id="device-success-message" class="message success" role="status"></p>
+            </div>
+
+	            <ul id="device-list" class="device-list">
+	              <li class="empty-item">データなし</li>
+	            </ul>
+	          </section>
+
+	              <section class="panel" aria-labelledby="user-manager-title">
+	                <div class="panel-header manager-header">
+	                  <h2 id="user-manager-title">利用者管理</h2>
+                    <button
+                      id="open-user-registration-form-button"
+                      type="button"
+                      class="ghost manager-add-button"
+                      disabled
+                      aria-expanded="false"
+                      aria-controls="user-registration-form"
+                    >
+                      ＋追加
+                    </button>
+	                </div>
+
+	                <form id="user-registration-form" class="form-grid hidden">
+                  <label class="field">
+                    <span>利用者名</span>
+                    <input
+                      id="user-registration-name"
+                      type="text"
+                      disabled
+                    />
+                  </label>
+
+                  <div class="button-row">
+                    <button id="add-user-registration-button" type="submit" disabled>利用者を追加</button>
+                  </div>
+                </form>
+
+                <div class="status-area">
+                  <p id="user-registration-error-message" class="message error" role="alert"></p>
+                  <p id="user-registration-success-message" class="message success" role="status"></p>
+                </div>
+
+	                <ul id="user-registration-list" class="device-list">
+	                  <li class="empty-item">データなし</li>
+	                </ul>
+	              </section>
+
+              <section class="panel" aria-labelledby="csv-tools-title">
+                <div class="panel-header">
+                  <h2 id="csv-tools-title">データ入出力</h2>
+                </div>
+                <div class="csv-tools-group-grid">
+                  <section class="csv-tools-box" aria-labelledby="csv-export-title">
+                    <h3 id="csv-export-title">エクスポート</h3>
+                    <div class="csv-tools-grid">
+                      <button id="export-carriers-csv-button" type="button" class="ghost" disabled>回線CSVをエクスポート</button>
+                      <button id="export-devices-csv-button" type="button" class="ghost" disabled>端末CSVをエクスポート</button>
+                      <button id="export-users-csv-button" type="button" class="ghost" disabled>利用者CSVをエクスポート</button>
+                    </div>
+                  </section>
+                  <section class="csv-tools-box" aria-labelledby="csv-import-title">
+                    <h3 id="csv-import-title">インポート</h3>
+                    <div class="csv-tools-grid">
+                      <button id="import-carriers-csv-button" type="button" class="ghost" disabled>回線CSVをインポート</button>
+                      <button id="import-devices-csv-button" type="button" class="ghost" disabled>端末CSVをインポート</button>
+                      <button id="import-users-csv-button" type="button" class="ghost" disabled>利用者CSVをインポート</button>
+                    </div>
+                  </section>
+                </div>
+                <input id="import-carriers-csv-input" type="file" accept=".csv,text/csv" class="hidden" />
+                <input id="import-devices-csv-input" type="file" accept=".csv,text/csv" class="hidden" />
+                <input id="import-users-csv-input" type="file" accept=".csv,text/csv" class="hidden" />
+              </section>
+
+	          <section class="panel">
+	            <div class="form-grid">
+	              <button id="reset-account-button" type="button" class="danger" disabled>
+                アカウントを初期化
+              </button>
+              <button id="logout-button" type="button" class="ghost" disabled>
+                ログアウト
+              </button>
+            </div>
+          </section>
+        </section>
+      </section>
+    </main>
+
+    <div id="reset-account-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="reset-account-modal-title">
+      <div class="modal-panel">
+        <h3 id="reset-account-modal-title">アカウント初期化の確認</h3>
+        <p class="panel-text">回線・端末・利用者データをすべて削除します。確認のため「初期化」と入力してください。</p>
+        <label class="field">
+          <span>確認文字</span>
+          <input id="reset-account-confirm-input" type="text" />
+        </label>
+        <div id="reset-account-loading" class="modal-loading hidden" aria-live="polite">
+          <span class="spinner" aria-hidden="true"></span>
+          <span>初期化処理中...</span>
+        </div>
+        <div class="button-row">
+          <button id="cancel-reset-account-button" type="button" class="ghost">キャンセル</button>
+          <button id="confirm-reset-account-button" type="button" class="danger">初期化を実行</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="mnp-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="mnp-modal-title">
+      <div class="modal-panel">
+        <h3 id="mnp-modal-title">MNPの解約日入力</h3>
+        <label class="field">
+          <span>解約日</span>
+          <input id="mnp-cancel-date-input" type="date" />
+        </label>
+        <div class="button-row">
+          <button id="cancel-mnp-button" type="button" class="ghost">キャンセル</button>
+          <button id="confirm-mnp-button" type="button" class="secondary">確定</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="edit-options-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="edit-options-modal-title">
+      <div class="modal-panel">
+        <h3 id="edit-options-modal-title">オプション</h3>
+
+        <div id="edit-options-mode-root">
+          <div id="edit-options-menu">
+            <div class="button-row">
+              <button id="edit-options-delete-button" type="button" class="danger">削除</button>
+              <button id="edit-options-cancel-button" type="button" class="secondary">解約</button>
+              <button id="edit-options-mnp-button" type="button" class="secondary">MNP</button>
+            </div>
+            <div class="button-row">
+              <button id="close-edit-options-button" type="button" class="ghost">閉じる</button>
+            </div>
+          </div>
+
+          <div id="edit-options-delete-confirm" class="hidden">
+            <p class="panel-text">この回線情報を削除しますか？</p>
+            <div class="button-row">
+              <button id="back-from-delete-confirm-button" type="button" class="ghost">戻る</button>
+              <button id="confirm-delete-from-options-button" type="button" class="danger">削除</button>
+            </div>
+          </div>
+
+          <div id="edit-options-cancel-editor" class="hidden">
+            <p id="edit-options-cancel-description" class="panel-text"></p>
+            <label id="edit-options-cancel-date-field" class="field">
+              <span>解約日</span>
+              <input id="edit-options-cancel-date-input" type="date" />
+            </label>
+            <div class="button-row">
+              <button id="back-from-cancel-editor-button" type="button" class="ghost">戻る</button>
+              <button id="confirm-cancel-from-options-button" type="button" class="secondary">確定</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script type="module" src="app.js"></script>
+  </body>
+</html>
