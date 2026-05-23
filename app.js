@@ -1236,7 +1236,22 @@ function renderCarrierList(items) {
   }
 
   const activeItems = items.filter((item) => !item.isCancelled);
-  const cancelledItems = items.filter((item) => item.isCancelled);
+  const cancelledItems = items
+    .filter((item) => item.isCancelled)
+    .toSorted((left, right) => {
+      const leftTime = left.cancelDate ? Date.parse(left.cancelDate) : Number.POSITIVE_INFINITY;
+      const rightTime = right.cancelDate ? Date.parse(right.cancelDate) : Number.POSITIVE_INFINITY;
+      if (Number.isNaN(leftTime) && Number.isNaN(rightTime)) {
+        return 0;
+      }
+      if (Number.isNaN(leftTime)) {
+        return 1;
+      }
+      if (Number.isNaN(rightTime)) {
+        return -1;
+      }
+      return leftTime - rightTime;
+    });
 
   activeItems.forEach((item) => {
     carrierList.appendChild(createCarrierListItem(item));
